@@ -156,10 +156,6 @@ extern const unsigned int libmodbus_version_micro;
 
 typedef struct _modbus modbus_t;
 
-/*! Memory layout in tab_xxx arrays is processor-endianness.
-    When receiving modbus data, it is converted to processor-endianness,
-    see read_registers().
-*/
 typedef struct _modbus_mapping_t {
     int nb_bits;
     int start_bits;
@@ -221,25 +217,74 @@ MODBUS_API int modbus_set_debug(modbus_t *ctx, int flag);
 
 MODBUS_API const char *modbus_strerror(int errnum);
 
-MODBUS_API int modbus_read_bits(modbus_t *ctx, int addr, int nb, uint8_t *dest);
-MODBUS_API int modbus_read_input_bits(modbus_t *ctx, int addr, int nb, uint8_t *dest);
-MODBUS_API int modbus_read_registers(modbus_t *ctx, int addr, int nb, uint16_t *dest);
+MODBUS_API int modbus_read_bits(modbus_t *ctx, int addr, int nb, uint8_t *dest);              /* FC:0x01  */
+MODBUS_API int modbus_read_input_bits(modbus_t *ctx, int addr, int nb, uint8_t *dest);        /* FC:0x02  */
+MODBUS_API int modbus_read_registers(modbus_t *ctx, int addr, int nb, uint16_t *dest);        /* FC:0x03  */
 MODBUS_API int
-modbus_read_input_registers(modbus_t *ctx, int addr, int nb, uint16_t *dest);
-MODBUS_API int modbus_write_bit(modbus_t *ctx, int coil_addr, int status);
-MODBUS_API int modbus_write_register(modbus_t *ctx, int reg_addr, const uint16_t value);
-MODBUS_API int modbus_write_bits(modbus_t *ctx, int addr, int nb, const uint8_t *data);
+modbus_read_input_registers(modbus_t *ctx, int addr, int nb, uint16_t *dest);                 /* FC:0x04  */
+MODBUS_API int modbus_write_bit(modbus_t *ctx, int coil_addr, int status);                    /* FC:0x05  */
+MODBUS_API int modbus_write_register(modbus_t *ctx, int reg_addr, const uint16_t value);      /* FC:0x06  */
+MODBUS_API int modbus_write_bits(modbus_t *ctx, int addr, int nb, const uint8_t *data);       /* FC:0x0F  */
 MODBUS_API int
-modbus_write_registers(modbus_t *ctx, int addr, int nb, const uint16_t *data);
+modbus_write_registers(modbus_t *ctx, int addr, int nb, const uint16_t *data);                /* FC:0x10  */
 MODBUS_API int
-modbus_mask_write_register(modbus_t *ctx, int addr, uint16_t and_mask, uint16_t or_mask);
+modbus_mask_write_register(modbus_t *ctx, int addr, uint16_t and_mask, uint16_t or_mask);     /* FC:0x16  */
 MODBUS_API int modbus_write_and_read_registers(modbus_t *ctx,
                                                int write_addr,
                                                int write_nb,
                                                const uint16_t *src,
                                                int read_addr,
                                                int read_nb,
-                                               uint16_t *dest);
+                                               uint16_t *dest);                               /* FC:0x17  */
+
+
+/*  Custom add func: Build raw modbus message ,but not send   */
+MODBUS_API int modbus_read_bits_raw(modbus_t *ctx, int addr, int nb, uint8_t *dest);  
+MODBUS_API int modbus_read_input_bits_raw(modbus_t *ctx, int addr, int nb, uint8_t *dest);  
+MODBUS_API int modbus_read_registers_raw(modbus_t *ctx, int addr, int nb, uint16_t *dest);
+MODBUS_API int 
+modbus_read_input_registers_raw(modbus_t *ctx, int addr, int nb, uint16_t *dest);
+MODBUS_API int modbus_write_bit_raw(modbus_t *ctx, int coil_addr, int status,uint8_t* dest);       /* FC:0x05  */
+MODBUS_API int modbus_write_register_raw(modbus_t *ctx, int reg_addr, const uint16_t value,uint8_t* req);      /* FC:0x06  */
+MODBUS_API int modbus_write_bits_raw(modbus_t *ctx, int addr, int nb, uint8_t *data);       /* FC:0x0F  */
+MODBUS_API int
+modbus_write_registers_raw(modbus_t *ctx, int addr, int nb, uint16_t *data);                /* FC:0x10  */
+MODBUS_API int
+modbus_mask_write_register_raw(modbus_t *ctx, int addr, uint16_t and_mask, uint16_t or_mask,uint8_t* req);     /* FC:0x16  */
+MODBUS_API int modbus_write_and_read_registers_raw(modbus_t *ctx,
+                                                   int write_addr,
+                                                   int write_nb,
+                                                   uint16_t *src,
+                                                   int read_addr,
+                                                   int read_nb);                               /* FC:0x17  */
+
+
+/*  Custom add func: receive raw modbus data message   */
+MODBUS_API int modbus_read_bits_raw_rsp(modbus_t* tcx,int addr,int nb,uint8_t* dest);                 /* FX:0x01  */
+MODBUS_API int modbus_read_input_bits_raw_rsp(modbus_t *ctx, int addr, int nb, uint8_t *dest);        /* FC:0x02  */
+MODBUS_API int modbus_read_registers_raw_rsp(modbus_t *ctx, int addr, int nb, uint16_t *dest);        /* FC:0x03  */
+MODBUS_API int
+modbus_read_input_registers_raw_rsp(modbus_t *ctx, int addr, int nb, uint16_t *dest);                 /* FC:0x04  */
+MODBUS_API int modbus_write_bit_raw_req(modbus_t *ctx, int coil_addr, int status);                    /* FC:0x05  */
+MODBUS_API int modbus_write_register_raw_req(modbus_t *ctx, int reg_addr, const uint16_t value);      /* FC:0x06  */
+MODBUS_API int modbus_write_bits_raw_req(modbus_t *ctx, int addr, int nb, const uint8_t *data);       /* FC:0x0F  */
+MODBUS_API int
+modbus_write_registers_raw_req(modbus_t *ctx, int addr, int nb, const uint16_t *data);                /* FC:0x10  */
+MODBUS_API int
+modbus_mask_write_register_raw_req(modbus_t *ctx, int addr, uint16_t and_mask, uint16_t or_mask);     /* FC:0x16  */
+MODBUS_API int modbus_write_and_read_registers_raw_req(modbus_t *ctx,
+                                                       int write_addr,
+                                                       int write_nb,
+                                                       const uint16_t *src,
+                                                       int read_addr,
+                                                       int read_nb,
+                                                       uint16_t *dest);                               /* FC:0x17  */
+
+/*  Modbus meeage check   */
+MODBUS_API int
+modbus_check_confirmation(modbus_t *ctx, uint8_t *req, uint8_t *rsp, int rsp_length);
+MODBUS_API int modbus_compute_response_length_from_request(modbus_t* ctx,uint8_t* req);
+
 MODBUS_API int modbus_report_slave_id(modbus_t *ctx, int max_dest, uint8_t *dest);
 
 MODBUS_API modbus_mapping_t *
@@ -252,21 +297,36 @@ modbus_mapping_new_start_address(unsigned int start_bits,
                                  unsigned int start_input_registers,
                                  unsigned int nb_input_registers);
 
+MODBUS_API modbus_mapping_t *
+modbus_mapping_new_start_address_one(unsigned int start_bits,
+                                     unsigned int nb_bits,
+                                     unsigned int start_input_bits,
+                                     unsigned int nb_input_bits,
+                                     unsigned int start_registers,
+                                     unsigned int nb_registers,
+                                     unsigned int start_input_registers,
+                                     unsigned int nb_input_registers);
+
 MODBUS_API modbus_mapping_t *modbus_mapping_new(int nb_bits,
                                                 int nb_input_bits,
                                                 int nb_registers,
                                                 int nb_input_registers);
 MODBUS_API void modbus_mapping_free(modbus_mapping_t *mb_mapping);
 
+/*  Custom modbus_mapping API: allocate a block memory,order: DI DO AI AO */
+MODBUS_API modbus_mapping_t *modbus_mapping_new_one(int nb_bits,
+                                                    int nb_input_bits,
+                                                    int nb_registers,
+                                                    int nb_input_registers);
+
+MODBUS_API void modbus_mapping_free_one(modbus_mapping_t* mb_mapping);
+
 MODBUS_API int
 modbus_send_raw_request(modbus_t *ctx, const uint8_t *raw_req, int raw_req_length);
 
-MODBUS_API int modbus_send_raw_request_tid(modbus_t *ctx,
-                                           const uint8_t *raw_req,
-                                           int raw_req_length,
-                                           int tid);
-
 MODBUS_API int modbus_receive(modbus_t *ctx, uint8_t *req);
+
+MODBUS_API int modbus_receive_raw(modbus_t* ctx,uint8_t* msg,int length,unsigned int* read_length);
 
 MODBUS_API int modbus_receive_confirmation(modbus_t *ctx, uint8_t *rsp);
 
@@ -274,6 +334,20 @@ MODBUS_API int modbus_reply(modbus_t *ctx,
                             const uint8_t *req,
                             int req_length,
                             modbus_mapping_t *mb_mapping);
+
+MODBUS_API int modbus_reply_raw(modbus_t *ctx,
+                            const uint8_t *req,
+                            int req_length,
+                            modbus_mapping_t *mb_mapping,
+                            uint8_t* dest);
+
+/* new custom api  */
+MODBUS_API int modbus_reply_isexception(modbus_t *ctx,
+                                        const uint8_t *req,
+                                        int req_length,
+                                        modbus_mapping_t *mb_mapping,
+                                        int *is_exception);  // new para is_exception: check is response exception   
+
 MODBUS_API int
 modbus_reply_exception(modbus_t *ctx, const uint8_t *req, unsigned int exception_code);
 MODBUS_API int modbus_enable_quirks(modbus_t *ctx, unsigned int quirks_mask);
@@ -284,31 +358,31 @@ MODBUS_API int modbus_disable_quirks(modbus_t *ctx, unsigned int quirks_mask);
  **/
 
 #define MODBUS_GET_HIGH_BYTE(data) (((data) >> 8) & 0xFF)
-#define MODBUS_GET_LOW_BYTE(data)  ((data) & 0xFF)
-#define MODBUS_GET_INT64_FROM_INT16(tab_int16, index)                                  \
-    (((int64_t) tab_int16[(index)] << 48) | ((int64_t) tab_int16[(index) + 1] << 32) | \
-     ((int64_t) tab_int16[(index) + 2] << 16) | (int64_t) tab_int16[(index) + 3])
+#define MODBUS_GET_LOW_BYTE(data)  ((data) &0xFF)
+#define MODBUS_GET_INT64_FROM_INT16(tab_int16, index)                                \
+  (((int64_t) tab_int16[(index)] << 48) | ((int64_t) tab_int16[(index) + 1] << 32) | \
+   ((int64_t) tab_int16[(index) + 2] << 16) | (int64_t) tab_int16[(index) + 3])
 #define MODBUS_GET_INT32_FROM_INT16(tab_int16, index) \
-    (((int32_t) tab_int16[(index)] << 16) | (int32_t) tab_int16[(index) + 1])
+  (((int32_t) tab_int16[(index)] << 16) | (int32_t) tab_int16[(index) + 1])
 #define MODBUS_GET_INT16_FROM_INT8(tab_int8, index) \
-    (((int16_t) tab_int8[(index)] << 8) | (int16_t) tab_int8[(index) + 1])
-#define MODBUS_SET_INT16_TO_INT8(tab_int8, index, value)            \
-    do {                                                            \
-        ((int8_t *) (tab_int8))[(index)] = (int8_t) ((value) >> 8); \
-        ((int8_t *) (tab_int8))[(index) + 1] = (int8_t) (value);    \
-    } while (0)
-#define MODBUS_SET_INT32_TO_INT16(tab_int16, index, value)              \
-    do {                                                                \
-        ((int16_t *) (tab_int16))[(index)] = (int16_t) ((value) >> 16); \
-        ((int16_t *) (tab_int16))[(index) + 1] = (int16_t) (value);     \
-    } while (0)
-#define MODBUS_SET_INT64_TO_INT16(tab_int16, index, value)                  \
-    do {                                                                    \
-        ((int16_t *) (tab_int16))[(index)] = (int16_t) ((value) >> 48);     \
-        ((int16_t *) (tab_int16))[(index) + 1] = (int16_t) ((value) >> 32); \
-        ((int16_t *) (tab_int16))[(index) + 2] = (int16_t) ((value) >> 16); \
-        ((int16_t *) (tab_int16))[(index) + 3] = (int16_t) (value);         \
-    } while (0)
+  (((int16_t) tab_int8[(index)] << 8) | (int16_t) tab_int8[(index) + 1])
+#define MODBUS_SET_INT16_TO_INT8(tab_int8, index, value)        \
+  do {                                                          \
+    ((int8_t *) (tab_int8))[(index)] = (int8_t) ((value) >> 8); \
+    ((int8_t *) (tab_int8))[(index) + 1] = (int8_t) (value);    \
+  } while (0)
+#define MODBUS_SET_INT32_TO_INT16(tab_int16, index, value)          \
+  do {                                                              \
+    ((int16_t *) (tab_int16))[(index)] = (int16_t) ((value) >> 16); \
+    ((int16_t *) (tab_int16))[(index) + 1] = (int16_t) (value);     \
+  } while (0)
+#define MODBUS_SET_INT64_TO_INT16(tab_int16, index, value)              \
+  do {                                                                  \
+    ((int16_t *) (tab_int16))[(index)] = (int16_t) ((value) >> 48);     \
+    ((int16_t *) (tab_int16))[(index) + 1] = (int16_t) ((value) >> 32); \
+    ((int16_t *) (tab_int16))[(index) + 2] = (int16_t) ((value) >> 16); \
+    ((int16_t *) (tab_int16))[(index) + 3] = (int16_t) (value);         \
+  } while (0)
 
 MODBUS_API void modbus_set_bits_from_byte(uint8_t *dest, int idx, const uint8_t value);
 MODBUS_API void modbus_set_bits_from_bytes(uint8_t *dest,
