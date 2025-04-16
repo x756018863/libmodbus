@@ -3533,7 +3533,7 @@ void modbus_mapping_free_one(modbus_mapping_t* mb_mapping)
         return;
     }
 
-    free(mb_mapping->tab_bits);
+    free(mb_mapping->tab_input_bits);
     free(mb_mapping);
 }
 
